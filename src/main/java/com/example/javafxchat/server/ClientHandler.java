@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler {
+    private static final int AUTH_TIMEOUT = 120_000;
+    private Thread timeoutThread;
     
     private Socket socket;
     private ChatServer server;
@@ -23,6 +25,16 @@ public class ClientHandler {
             this.authService = authService;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
+    
+            this.timeoutThread = new Thread(() -> {
+                try {
+                    Thread.sleep(AUTH_TIMEOUT);
+                    sendMessage(Command.STOP);
+                } catch (InterruptedException e) {
+                    System.out.println("Успешная авторизация");;
+                }
+            });
+            timeoutThread.start();
             
             
             new Thread(() -> {
@@ -57,6 +69,7 @@ public class ClientHandler {
                             sendMessage(Command.ERROR, "Пользователь уже авторизован");
                             continue;
                         }
+                        this.timeoutThread.interrupt();
                         sendMessage(Command.AUTHOK, nick);
                         this.nick = nick;
                         server.broadcast(Command.MESSAGE, "Пользователь " + nick + " зашел в чат");

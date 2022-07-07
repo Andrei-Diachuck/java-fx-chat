@@ -58,6 +58,16 @@ public class ChatClient {
                 Platform.runLater(() -> controller.showError(params[0]));
                 continue;
             }
+            if (command == STOP) {
+                Platform.runLater(() -> controller.showError("Истекло время на авторизацию, перезапустите приложение"));
+                try {
+                    Thread.sleep(5000);
+                    sendMessage(END);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
             }
         }
     
