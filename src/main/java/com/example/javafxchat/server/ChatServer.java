@@ -19,11 +19,12 @@ public class ChatServer {
     
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(8189);
-             AuthService authService = new InMemoryAuthService()) {
+             AuthService authService = new SqlAuthServer();
+             UserNameService userNameService = new SqlNewUserName()) {
             while (true) {
                 System.out.println("Ожидаю подключения...");
                 final Socket socket = serverSocket.accept();
-                new ClientHandler(socket, this, authService);
+                new ClientHandler(socket, this, authService, userNameService);
                 System.out.println("Клиент подключен");
             }
         } catch (IOException e) {
@@ -40,7 +41,7 @@ public class ChatServer {
         return clients.get(nick) != null;
     }
     
-    private void broadcastClientsList() {
+    public void broadcastClientsList() {
         final String nicks = clients.values().stream()
                 .map(ClientHandler::getNick)
                 .collect(Collectors.joining(" "));

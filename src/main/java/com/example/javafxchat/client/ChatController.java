@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import com.example.javafxchat.Command;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -34,6 +35,9 @@ public class ChatController {
     private final ChatClient client;
     
     private String selectedNick;
+    
+    @FXML
+    private TextField newUsernameField;
     
     public ChatController() {
         this.client = new ChatClient(this);
@@ -122,5 +126,16 @@ public class ChatController {
     
     public ChatClient getClient() {
         return client;
+    }
+    
+    public void changeUsernamemBtnClick(ActionEvent actionEvent) {
+        String newUsername = newUsernameField.getText();
+        if (newUsername == null && newUsername.isBlank()) {
+            // TODO: 22.08.2022 Show notification
+            return;
+        }
+        client.sendMessage(Command.CHANGE_USERNAME, newUsername);
+    
+        newUsernameField.clear();
     }
 }

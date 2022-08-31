@@ -17,14 +17,17 @@ public class ClientHandler {
     private DataOutputStream out;
     private String nick;
     private AuthService authService;
+    private UserNameService userNameService;
+    private String login;
     
-    public ClientHandler(Socket socket, ChatServer server, AuthService authService) {
+    public ClientHandler(Socket socket, ChatServer server, AuthService authService, UserNameService userNameService) {
         try {
             this.socket = socket;
             this.server = server;
             this.authService = authService;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
+            this.userNameService =userNameService;
     
             this.timeoutThread = new Thread(() -> {
                 try {
@@ -136,6 +139,11 @@ public class ClientHandler {
                     server.sendPrivateMessage(this, params[0], params[1]);
                     continue;
                 }
+                if (command == Command.CHANGE_USERNAME){
+                    String newUserName = command.parse(message)[0];
+                    rename(newUserName);
+                    continue;
+                }
                 server.broadcast(Command.MESSAGE, nick + ": " + command.parse(message)[0]);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -143,7 +151,17 @@ public class ClientHandler {
         }
     }
     
+    private void rename(String newUserName) {
+        userNameService.updateUserName(login, newUserName);
+        setnick(newUserName);
+        server.broadcastClientsList();
+    }
+    
     public String getNick() {
         return nick;
+    }
+    
+    public void setnick(String nick){
+        this.nick =nick;
     }
 }

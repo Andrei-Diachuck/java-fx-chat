@@ -20,6 +20,10 @@
             <Button text="Sign in" onAction="#signinBtnClick"/>
         </HBox>
         <HBox fx:id="messageBox" visible="false">
+            <HBox>
+                <TextField fx:id="newUsernameField" promptText="New username"/>
+                <Button text="Change username" onAction="#changeUsernamemBtnClick"/>
+            </HBox>
             <VBox>
                 <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS"/>
                 <HBox spacing="10">
